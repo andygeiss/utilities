@@ -4,8 +4,8 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/andygeiss/utilities/pkg/security"
-	assert "github.com/andygeiss/utilities/pkg/testing"
+	"github.com/andygeiss/utilities/security"
+	assert "github.com/andygeiss/utilities/testing"
 )
 
 func TestHash(t *testing.T) {
