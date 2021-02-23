@@ -8,15 +8,6 @@ import (
 	"io"
 )
 
-// NewKey256 ...
-func NewKey256() [32]byte {
-	key := [32]byte{}
-	if _, err := io.ReadFull(rand.Reader, key[:]); err != nil {
-		panic(err)
-	}
-	return key
-}
-
 // Decrypt GCM-AES256 ...
 func Decrypt(ciphertext []byte, key [32]byte) (plaintext []byte, err error) {
 	block, err := aes.NewCipher(key[:])
@@ -49,4 +40,13 @@ func Encrypt(plaintext []byte, key [32]byte) (ciphertext []byte, err error) {
 		return nil, err
 	}
 	return gcm.Seal(nonce, nonce, plaintext, nil), nil
+}
+
+// NewKey256 ...
+func NewKey256() [32]byte {
+	key := [32]byte{}
+	if _, err := io.ReadFull(rand.Reader, key[:]); err != nil {
+		panic(err)
+	}
+	return key
 }
