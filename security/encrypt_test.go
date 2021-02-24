@@ -3,8 +3,8 @@ package security_test
 import (
 	"testing"
 
-	"github.com/andygeiss/utilities/pkg/security"
-	assert "github.com/andygeiss/utilities/pkg/testing"
+	"github.com/andygeiss/utilities/security"
+	assert "github.com/andygeiss/utilities/testing"
 )
 
 func TestDecrypt(t *testing.T) {
