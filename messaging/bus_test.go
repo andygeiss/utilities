@@ -56,7 +56,8 @@ func TestTwoActors(t *testing.T) {
 }
 
 func TestActorSend(t *testing.T) {
-	bus := messaging.NewBus()
+	logger := logging.NewDefaultLogger()
+	bus := messaging.NewDefaultBus(logger)
 	actor1 := &ActorStub{Bus: bus}
 	actor2 := &ActorStub{Bus: bus}
 	bus.Subscribe(actor1)
