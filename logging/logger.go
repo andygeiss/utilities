@@ -13,6 +13,6 @@ type Logger interface {
 
 // NewDefaultLogger ...
 func NewDefaultLogger() Logger {
-	return log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+	return log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
 }
