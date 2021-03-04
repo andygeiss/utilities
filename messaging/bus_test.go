@@ -3,6 +3,7 @@ package messaging_test
 import (
 	"testing"
 
+	"github.com/andygeiss/utilities/logging"
 	"github.com/andygeiss/utilities/messaging"
 	assert "github.com/andygeiss/utilities/testing"
 )
@@ -22,7 +23,8 @@ func (a *ActorStub) Receive(message interface{}) {
 type MessageStub struct{}
 
 func TestBusPublishAfterSubscribe(t *testing.T) {
-	bus := messaging.NewBus()
+	logger := logging.NewDefaultLogger()
+	bus := messaging.NewDefaultBus(logger)
 	actor := &ActorStub{Bus: bus}
 	bus.Subscribe(actor)
 	bus.Publish(MessageStub{})
@@ -30,14 +32,16 @@ func TestBusPublishAfterSubscribe(t *testing.T) {
 }
 
 func TestBusPublishWithoutSubscribe(t *testing.T) {
-	bus := messaging.NewBus()
+	logger := logging.NewDefaultLogger()
+	bus := messaging.NewDefaultBus(logger)
 	actor := &ActorStub{Bus: bus}
 	bus.Publish(MessageStub{})
 	assert.That("state of actor should not be changed", t, actor.StateChanged, false)
 }
 
 func TestTwoActors(t *testing.T) {
-	bus := messaging.NewBus()
+	logger := logging.NewDefaultLogger()
+	bus := messaging.NewDefaultBus(logger)
 	actor1 := &ActorStub{Bus: bus}
 	actor2 := &ActorStub{Bus: bus}
 	bus.Subscribe(actor1)

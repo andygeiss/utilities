@@ -1,5 +1,11 @@
 package messaging
 
+import (
+	"sync"
+
+	"github.com/andygeiss/utilities/logging"
+)
+
 // Bus defines the Publish/Subscribe pattern.
 type Bus interface {
 	Publish(message interface{})
@@ -7,28 +13,33 @@ type Bus interface {
 }
 
 type defaultBus struct {
+	logger      logging.Logger
 	subscribers []Actor
 }
 
-// DefaultBus can be used to connect all the actors of the system.
-var DefaultBus = NewBus()
-
-// NewBus creates a new bus, which can be used to isolate different types of a bus.
-func NewBus() Bus {
-	return &defaultBus{
-		subscribers: make([]Actor, 0),
-	}
-}
-
-// Publish simply send the message to all the actors.
+// Publish simply send the message to all the actors in parallel.
 // Each actor is responsible for choosing and handling the relevant messages by itself.
 func (a *defaultBus) Publish(message interface{}) {
+	wg := sync.WaitGroup{}
+	wg.Add(len(a.subscribers))
 	for _, actor := range a.subscribers {
-		actor.Receive(message)
+		go func(actor Actor) {
+			actor.Receive(message)
+			wg.Done()
+		}(actor)
 	}
+	wg.Wait()
 }
 
 // Subscribe simple registers an actor to the bus.
 func (a *defaultBus) Subscribe(actor Actor) {
 	a.subscribers = append(a.subscribers, actor)
+}
+
+// NewDefaultBus creates a new bus, which can be used to isolate different types of a bus.
+func NewDefaultBus(logger logging.Logger) Bus {
+	return &defaultBus{
+		logger:      logger,
+		subscribers: make([]Actor, 0),
+	}
 }
