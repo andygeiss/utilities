@@ -13,6 +13,10 @@ type ActorStub struct {
 	StateChanged bool
 }
 
+func (a *ActorStub) Name() string {
+	return "ActorStub"
+}
+
 func (a *ActorStub) Receive(message interface{}) {
 	switch message.(type) {
 	case MessageStub:
