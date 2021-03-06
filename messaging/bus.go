@@ -1,45 +1,49 @@
 package messaging
 
 import (
+	"context"
 	"sync"
-
-	"github.com/andygeiss/utilities/logging"
 )
 
-// Bus defines the Publish/Subscribe pattern.
+// Actor ...
+type Actor func(ctx context.Context, in interface{})
+
+// Message ...
+type Message interface{}
+
+// Bus ...
 type Bus interface {
-	Publish(message interface{})
-	Subscribe(actor Actor)
+	Subscribe(topic string, actor Actor)
+	Publish(ctx context.Context, topic string, msg Message)
 }
 
 type defaultBus struct {
-	logger      logging.Logger
-	subscribers []Actor
+	topics map[string][]Actor
 }
 
-// Publish simply send the message to all the actors in parallel.
-// Each actor is responsible for choosing and handling the relevant messages by itself.
-func (a *defaultBus) Publish(message interface{}) {
-	wg := sync.WaitGroup{}
-	wg.Add(len(a.subscribers))
-	for _, actor := range a.subscribers {
-		go func(actor Actor) {
-			actor.Receive(message)
-			wg.Done()
-		}(actor)
+// Subscribe ...
+func (a *defaultBus) Subscribe(topic string, actor Actor) {
+	a.topics[topic] = append(a.topics[topic], actor)
+}
+
+// Publish ...
+func (a *defaultBus) Publish(ctx context.Context, topic string, msg Message) {
+	if consumers, exists := a.topics[topic]; exists {
+		wg := sync.WaitGroup{}
+		wg.Add(len(consumers))
+		for _, actor := range consumers {
+			go func(actor Actor) {
+				actor(ctx, msg)
+				wg.Done()
+			}(actor)
+		}
+		wg.Wait()
 	}
-	wg.Wait()
 }
 
-// Subscribe simple registers an actor to the bus.
-func (a *defaultBus) Subscribe(actor Actor) {
-	a.subscribers = append(a.subscribers, actor)
-}
-
-// NewDefaultBus creates a new bus, which can be used to isolate different types of a bus.
-func NewDefaultBus(logger logging.Logger) Bus {
+// NewDefaultBus ...
+func NewDefaultBus() Bus {
 	return &defaultBus{
-		logger:      logger,
-		subscribers: make([]Actor, 0),
+		topics: make(map[string][]Actor),
 	}
 }

@@ -1,98 +1,98 @@
 package messaging_test
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
 
-	"github.com/andygeiss/utilities/logging"
 	"github.com/andygeiss/utilities/messaging"
 	assert "github.com/andygeiss/utilities/testing"
 )
 
+func TestBus(t *testing.T) {
+	bus := messaging.NewDefaultBus()
+	state := 0
+	bus.Subscribe("foo", func(ctx context.Context, in interface{}) {
+		state = 42
+	})
+	bus.Publish(context.Background(), "foo", "bar")
+	assert.That("state should be changed to 42", t, state, 42)
+}
+
 type ActorStub struct {
-	Bus          messaging.Bus
-	StateChanged bool
+	Bus   messaging.Bus
+	State int
 }
 
-func (a *ActorStub) Name() string {
-	return "ActorStub"
+type BarMessage struct {
+	Num int
 }
 
-func (a *ActorStub) Receive(message interface{}) {
-	switch message.(type) {
-	case MessageStub:
-		a.StateChanged = true
+type ErrorMessage struct {
+	Error error
+}
+
+type FooMessage struct {
+	Num int
+}
+
+type TimeoutMessage struct {
+}
+
+func (a *ActorStub) Foo(ctx context.Context, in interface{}) {
+	done := make(chan struct{})
+	// Handle Asynchronously ...
+	var err error
+	go func() {
+		switch msg := in.(type) {
+		case FooMessage:
+			time.Sleep(time.Second)
+			a.State = msg.Num * 2
+		}
+		done <- struct{}{}
+	}()
+	// Wait ...
+	select {
+	case <-ctx.Done(): // Context error
+		a.Bus.Publish(ctx, "error", ErrorMessage{Error: ctx.Err()})
+	case <-done:
+		if err != nil { // Business error
+			a.Bus.Publish(ctx, "error", ErrorMessage{Error: errors.New("error during foo")})
+			return
+		} // Success
+		a.Bus.Publish(ctx, "bar", BarMessage{Num: a.State})
 	}
-	time.Sleep(time.Millisecond)
-}
-
-func (a *ActorStub) Send(message interface{}) {
-	a.Bus.Publish(message)
-}
-
-type MessageStub struct{}
-
-func TestBusPublishAfterSubscribe(t *testing.T) {
-	logger := logging.NewDefaultLogger()
-	bus := messaging.NewDefaultBus(logger)
-	actor := &ActorStub{Bus: bus}
-	bus.Subscribe(actor)
-	bus.Publish(MessageStub{})
-	assert.That("state of actor should be changed", t, actor.StateChanged, true)
-}
-
-func TestBusPublishWithoutSubscribe(t *testing.T) {
-	logger := logging.NewDefaultLogger()
-	bus := messaging.NewDefaultBus(logger)
-	actor := &ActorStub{Bus: bus}
-	bus.Publish(MessageStub{})
-	assert.That("state of actor should not be changed", t, actor.StateChanged, false)
-}
-
-func TestBusWithTwoActorsBusSend(t *testing.T) {
-	logger := logging.NewDefaultLogger()
-	bus := messaging.NewDefaultBus(logger)
-	actor1 := &ActorStub{Bus: bus}
-	actor2 := &ActorStub{Bus: bus}
-	bus.Subscribe(actor1)
-	bus.Subscribe(actor2)
-	bus.Publish(MessageStub{})
-	assert.That("state of actor1 should be changed", t, actor1.StateChanged, true)
-	assert.That("state of actor2 should be changed", t, actor2.StateChanged, true)
-}
-
-func TestBusWithTwoActorsActorSend(t *testing.T) {
-	logger := logging.NewDefaultLogger()
-	bus := messaging.NewDefaultBus(logger)
-	actor1 := &ActorStub{Bus: bus}
-	actor2 := &ActorStub{Bus: bus}
-	bus.Subscribe(actor1)
-	bus.Subscribe(actor2)
-	actor1.Send(MessageStub{})
-	assert.That("state of actor1 should be changed", t, actor1.StateChanged, true)
-	assert.That("state of actor2 should be changed", t, actor2.StateChanged, true)
 }
 
 func BenchmarkBus(b *testing.B) {
-	logger := logging.NewDefaultLogger()
-	bus := messaging.NewDefaultBus(logger)
-	numActors := []int{1, 2, 4, 8, 16, 1024, 4096}
-	for _, num := range numActors {
-		b.Run(fmt.Sprintf("%d actors", num), func(b *testing.B) {
-			actors := make([]messaging.Actor, num)
-			// Setup ...
+	bus := messaging.NewDefaultBus()
+	for _, num := range []int{1, 2, 4, 8, 16, 32, 64, 128} {
+		b.Run(fmt.Sprintf("%d", num), func(b *testing.B) {
 			for i := 0; i < num; i++ {
 				actor := &ActorStub{Bus: bus}
-				actors[i] = actor
-				bus.Subscribe(actor)
+				bus.Subscribe("foo", actor.Foo)
 			}
-			// Run ...
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				// The following message will be send to all actors.
-				bus.Publish(MessageStub{})
+				bus.Publish(context.Background(), "foo", FooMessage{Num: i})
 			}
 		})
+	}
+}
+
+func TestBusStateChangeParallel(t *testing.T) {
+	bus := messaging.NewDefaultBus()
+	actors := make([]*ActorStub, 16)
+	for i := 0; i < 16; i++ {
+		actors[i] = &ActorStub{Bus: bus}
+		bus.Subscribe("foo", actors[i].Foo)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second/2)
+	defer cancel()
+	bus.Publish(ctx, "foo", FooMessage{Num: 42})
+	for i := 0; i < 16; i++ {
+		assert.That(fmt.Sprintf("actor %d should changed its state to 84", i), t, actors[i].State, 84)
 	}
 }
