@@ -16,6 +16,8 @@ type ActorStub struct {
 	State int
 }
 
+func (a *ActorStub) ID() string { return "ActorStub" }
+
 func (a *ActorStub) Receive(ctx context.Context) {
 	msg := messaging.FromContext(ctx)
 	if msg == nil || msg.Data == nil {
@@ -23,7 +25,7 @@ func (a *ActorStub) Receive(ctx context.Context) {
 	}
 	switch inbound := msg.Data.(type) {
 	case *ActorMessageDataStub1:
-		a.Bus.Publish(messaging.NewMessage(&ActorMessageDataStub2{Bar: inbound.Foo}).ToContext(ctx))
+		a.Bus.Publish(messaging.NewMessage(a.ID(), &ActorMessageDataStub2{Bar: inbound.Foo}).ToContext(ctx))
 	case *ActorMessageDataStub2:
 		a.State = 42
 	}
@@ -33,6 +35,6 @@ func TestBus(t *testing.T) {
 	bus := messaging.NewBus()
 	actor := &ActorStub{Bus: bus, State: 0}
 	bus.Subscribe(actor)
-	bus.Publish(messaging.NewMessage(&ActorMessageDataStub1{Foo: "foo"}).ToContext(context.Background()))
+	bus.Publish(messaging.NewMessage(actor.ID(), &ActorMessageDataStub1{Foo: "foo"}).ToContext(context.Background()))
 	assert.That("actor state should be 42", t, actor.State, 42)
 }

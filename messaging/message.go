@@ -15,8 +15,9 @@ const (
 
 // Message ...
 type Message struct {
-	ID   string      `json:"id"`
-	Data interface{} `json:"data"`
+	ID     string      `json:"id"`
+	Data   interface{} `json:"data"`
+	Source string      `json:"source"`
 }
 
 // ToContext ...
@@ -25,11 +26,12 @@ func (a *Message) ToContext(parent context.Context) context.Context {
 }
 
 // NewMessage ...
-func NewMessage(data interface{}) *Message {
+func NewMessage(source string, data interface{}) *Message {
 	id := security.NewKey256()
 	return &Message{
-		ID:   hex.EncodeToString(id[:]),
-		Data: data,
+		ID:     hex.EncodeToString(id[:]),
+		Data:   data,
+		Source: source,
 	}
 }
 

@@ -11,14 +11,14 @@ import (
 type MessageStub struct{ Text string }
 
 func TestNewMessage(t *testing.T) {
-	msg := messaging.NewMessage(&MessageStub{Text: "foo"})
+	msg := messaging.NewMessage("foo", &MessageStub{Text: "foo"})
 	assert.That("message should not be nil", t, msg != nil, true)
 	assert.That("message data should not be nil", t, msg.Data != nil, true)
 	assert.That("message data text should be foo", t, msg.Data.(*MessageStub).Text, "foo")
 }
 
 func TestToAndFromContext(t *testing.T) {
-	msg := messaging.NewMessage(&MessageStub{Text: "foo"})
+	msg := messaging.NewMessage("foo", &MessageStub{Text: "foo"})
 	ctx := msg.ToContext(context.Background())
 	msg2 := messaging.FromContext(ctx)
 	assert.That("message2 should not be nil", t, msg2 != nil, true)
