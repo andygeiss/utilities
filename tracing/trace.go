@@ -33,6 +33,7 @@ func NewSpan(source, target, label string, duration time.Duration) *Span {
 // Trace ...
 type Trace struct {
 	spans []*Span
+	title string
 }
 
 // Add ...
@@ -48,7 +49,7 @@ func (a *Trace) ToContext(parent context.Context) context.Context {
 
 // ToPlantUML ...
 func (a *Trace) ToPlantUML() string {
-	out := "@startuml\n"
+	out := "@startuml " + a.title + "\n"
 	for _, span := range a.spans {
 		out += fmt.Sprintf("%s -> %s: %s (%v)\n", span.Source, span.Target, span.Label, span.Duration)
 	}
@@ -57,9 +58,10 @@ func (a *Trace) ToPlantUML() string {
 }
 
 // NewTrace ...
-func NewTrace() *Trace {
+func NewTrace(title string) *Trace {
 	return &Trace{
 		spans: make([]*Span, 0),
+		title: title,
 	}
 }
 

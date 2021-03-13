@@ -10,10 +10,10 @@ import (
 )
 
 func TestTraceAddAndToPlantUML(t *testing.T) {
-	trace := tracing.NewTrace()
+	trace := tracing.NewTrace("title")
 	trace.Add(tracing.NewSpan("source", "target", "label", time.Second))
 	out := trace.ToPlantUML()
-	wanted := `@startuml
+	wanted := `@startuml title
 source -> target: label (1s)
 @enduml
 `
@@ -22,12 +22,12 @@ source -> target: label (1s)
 }
 
 func TestToAndFromContext(t *testing.T) {
-	trace := tracing.NewTrace()
+	trace := tracing.NewTrace("title")
 	trace.Add(tracing.NewSpan("source", "target", "label", time.Second))
 	ctx := trace.ToContext(context.Background())
 	trace2 := tracing.FromContext(ctx)
 	out := trace2.ToPlantUML()
-	wanted := `@startuml
+	wanted := `@startuml title
 source -> target: label (1s)
 @enduml
 `
@@ -38,13 +38,13 @@ source -> target: label (1s)
 }
 
 func TestToAndFromContextTwice(t *testing.T) {
-	trace := tracing.NewTrace()
+	trace := tracing.NewTrace("title")
 	trace.Add(tracing.NewSpan("source", "target", "label", time.Second))
 	ctx := trace.ToContext(context.Background())
 	trace2 := tracing.FromContext(ctx)
 	trace2.Add(tracing.NewSpan("source2", "target2", "label2", time.Second))
 	out := trace2.ToPlantUML()
-	wanted := `@startuml
+	wanted := `@startuml title
 source -> target: label (1s)
 source2 -> target2: label2 (1s)
 @enduml
