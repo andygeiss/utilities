@@ -36,8 +36,9 @@ type Trace struct {
 }
 
 // Add ...
-func (a *Trace) Add(span *Span) {
+func (a *Trace) Add(span *Span) *Trace {
 	a.spans = append(a.spans, span)
+	return a
 }
 
 // ToContext ...
