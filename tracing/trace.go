@@ -50,7 +50,7 @@ func (a *Trace) ToContext(parent context.Context) context.Context {
 func (a *Trace) ToPlantUML() string {
 	out := "@startuml\n"
 	for _, span := range a.spans {
-		out += fmt.Sprintf("%s -> %s: %s\n", span.Source, span.Target, span.Label)
+		out += fmt.Sprintf("%s -> %s: %s (%v)\n", span.Source, span.Target, span.Label, span.Duration)
 	}
 	out += "@enduml\n"
 	return out
