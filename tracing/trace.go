@@ -2,8 +2,11 @@ package tracing
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"time"
+
+	"github.com/andygeiss/utilities/security"
 )
 
 type contextKey string
@@ -63,6 +66,13 @@ func NewTrace(title string) *Trace {
 		spans: make([]*Span, 0),
 		title: title,
 	}
+}
+
+// NewTraceWithRandomID ...
+func NewTraceWithRandomID() *Trace {
+	key := security.NewKey256()
+	rID := hex.EncodeToString(key[:])
+	return NewTrace(rID)
 }
 
 // FromContext ...
