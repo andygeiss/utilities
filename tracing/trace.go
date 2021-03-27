@@ -2,11 +2,7 @@ package tracing
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
-	"time"
-
-	"github.com/andygeiss/utilities/security"
 )
 
 type contextKey string
@@ -14,24 +10,6 @@ type contextKey string
 const (
 	contextKeyTracing = contextKey("trace")
 )
-
-// Span ...
-type Span struct {
-	Duration time.Duration `json:"duration"`
-	Label    string        `json:"label"`
-	Source   string        `json:"source"`
-	Target   string        `json:"target"`
-}
-
-// NewSpan ...
-func NewSpan(source, target, label string, duration time.Duration) *Span {
-	return &Span{
-		Duration: duration,
-		Label:    label,
-		Source:   source,
-		Target:   target,
-	}
-}
 
 // Trace ...
 type Trace struct {
@@ -66,13 +44,6 @@ func NewTrace(title string) *Trace {
 		spans: make([]*Span, 0),
 		title: title,
 	}
-}
-
-// NewRequestContextWithID ...
-func NewRequestContextWithID() (ctx context.Context, id string) {
-	key := security.NewKey256()
-	id = hex.EncodeToString(key[:])
-	return NewTrace(id).ToContext(context.Background()), id
 }
 
 // FromContext ...
