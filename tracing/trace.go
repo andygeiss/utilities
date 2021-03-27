@@ -52,5 +52,5 @@ func FromContext(ctx context.Context) *Trace {
 	case *Trace:
 		return trace
 	}
-	return nil
+	return NewTrace("trace")
 }

@@ -54,3 +54,8 @@ source2 -> target2: label2 (1s)
 	assert.That("trace2 should not be nil", t, trace2 != nil, true)
 	assert.That("out should be like wanted", t, out, wanted)
 }
+
+func TestFromTraceShouldHandleContextWithoutTrace(t *testing.T) {
+	trace := tracing.FromContext(context.Background())
+	assert.That("trace should not be nil", t, trace != nil, true)
+}

@@ -19,8 +19,5 @@ func NewRequestContextWithID() (ctx context.Context, id string) {
 func Call(ctx context.Context, source, target, action string, fn func()) context.Context {
 	t0 := time.Now()
 	fn()
-	return FromContext(ctx).
-		Add(
-			NewSpan(source, target, action, time.Since(t0)),
-		).ToContext(ctx)
+	return FromContext(ctx).Add(NewSpan(source, target, action, time.Since(t0))).ToContext(ctx)
 }
