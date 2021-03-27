@@ -3,6 +3,11 @@ package tracing
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strconv"
+	"time"
 )
 
 type contextKey string
@@ -14,7 +19,7 @@ const (
 // Trace ...
 type Trace struct {
 	spans []*Span
-	title string
+	Title string
 }
 
 // Add ...
@@ -30,7 +35,7 @@ func (a *Trace) ToContext(parent context.Context) context.Context {
 
 // ToPlantUML ...
 func (a *Trace) ToPlantUML() string {
-	out := "@startuml " + a.title + "\n"
+	out := "@startuml " + a.Title + "\n"
 	for _, span := range a.spans {
 		out += fmt.Sprintf(`"%s" -> "%s": %s (%v)
 `, span.Source, span.Target, span.Label, span.Duration)
@@ -39,11 +44,21 @@ func (a *Trace) ToPlantUML() string {
 	return out
 }
 
+// ToFile ...
+func (a *Trace) ToFile(path string) {
+	ts := time.Now()
+	fullPath := filepath.Join(path, strconv.Itoa(ts.Year()))
+	fullPath = filepath.Join(fullPath, strconv.Itoa(int(ts.Month())))
+	fullPath = filepath.Join(fullPath, strconv.Itoa(int(ts.Day())))
+	os.MkdirAll(fullPath, 0755)
+	ioutil.WriteFile(filepath.Join(fullPath, a.Title+".plantuml"), []byte(a.ToPlantUML()), 0644)
+}
+
 // NewTrace ...
 func NewTrace(title string) *Trace {
 	return &Trace{
 		spans: make([]*Span, 0),
-		title: title,
+		Title: title,
 	}
 }
 

@@ -2,6 +2,9 @@ package tracing_test
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -58,4 +61,17 @@ func TestToAndFromContextTwice(t *testing.T) {
 func TestFromTraceShouldHandleContextWithoutTrace(t *testing.T) {
 	trace := tracing.FromContext(context.Background())
 	assert.That("trace should not be nil", t, trace != nil, true)
+}
+
+func TestToFileShouldCreateFileStructure(t *testing.T) {
+	ts := time.Now()
+	path := filepath.Join("testdata")
+	trace := tracing.FromContext(context.Background())
+	fullPath := fmt.Sprintf("%s/%04d/%02d/%02d/%s.plantuml", path, ts.Year(), ts.Month(), ts.Day(), trace.Title)
+	trace.ToFile(fullPath)
+	stat, err := os.Stat(fullPath)
+	assert.That("err should be nil", t, err, nil)
+	assert.That("stat should not be nil", t, stat != nil, true)
+	assert.That("testdata/YEAR/MONTH/DAY/TITLE.plantuml should be created", t, stat.IsDir(), true)
+	os.RemoveAll("testdata")
 }
