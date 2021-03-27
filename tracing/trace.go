@@ -40,7 +40,7 @@ func (a *Trace) ToPlantUML() string {
 		out += fmt.Sprintf(`"%s" -> "%s": %s (%v)
 `, span.Source, span.Target, span.Label, span.Duration)
 	}
-	out += "@enduml\n"
+	out += "@enduml"
 	return out
 }
 
