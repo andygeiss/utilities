@@ -68,11 +68,11 @@ func NewTrace(title string) *Trace {
 	}
 }
 
-// NewTraceWithRandomID ...
-func NewTraceWithRandomID() *Trace {
+// NewRequestContextWithID ...
+func NewRequestContextWithID() (ctx context.Context, id string) {
 	key := security.NewKey256()
-	rID := hex.EncodeToString(key[:])
-	return NewTrace(rID)
+	id = hex.EncodeToString(key[:])
+	return NewTrace(id).ToContext(context.Background()), id
 }
 
 // FromContext ...
