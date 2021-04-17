@@ -18,8 +18,7 @@ func TestTraceAddAndToPlantUML(t *testing.T) {
 	out := trace.ToPlantUML()
 	wanted := `@startuml title
 "source" -> "target": label (1s)
-@enduml
-`
+@enduml`
 	assert.That("trace should not be nil", t, trace != nil, true)
 	assert.That("out should be like wanted", t, out, wanted)
 }
@@ -32,8 +31,7 @@ func TestToAndFromContext(t *testing.T) {
 	out := trace2.ToPlantUML()
 	wanted := `@startuml title
 "source" -> "target": label (1s)
-@enduml
-`
+@enduml`
 	assert.That("trace should not be nil", t, trace != nil, true)
 	assert.That("trace context should not be nil", t, ctx != nil, true)
 	assert.That("trace2 should not be nil", t, trace2 != nil, true)
@@ -50,8 +48,7 @@ func TestToAndFromContextTwice(t *testing.T) {
 	wanted := `@startuml title
 "source" -> "target": label (1s)
 "source2" -> "target2": label2 (1s)
-@enduml
-`
+@enduml`
 	assert.That("trace should not be nil", t, trace != nil, true)
 	assert.That("trace context should not be nil", t, ctx != nil, true)
 	assert.That("trace2 should not be nil", t, trace2 != nil, true)
