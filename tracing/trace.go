@@ -28,6 +28,11 @@ func (a *Trace) Add(span *Span) *Trace {
 	return a
 }
 
+// Spans ...
+func (a *Trace) Spans() []*Span {
+	return a.spans
+}
+
 // ToContext ...
 func (a *Trace) ToContext(parent context.Context) context.Context {
 	return context.WithValue(parent, contextKeyTracing, a)
