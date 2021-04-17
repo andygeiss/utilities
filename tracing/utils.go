@@ -20,6 +20,7 @@ func Call(ctx context.Context, source, target, action string, fn func()) context
 	t0 := time.Now()
 	// Local call should not be displayed with a request/response.
 	if source == target {
+		fn()
 		return FromContext(ctx).Add(NewSpan(source, target, action, time.Since(t0))).ToContext(ctx)
 	}
 	// Handle remote calls with a request/response.
