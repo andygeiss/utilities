@@ -78,7 +78,7 @@ func TestRegisterShouldCreateOneClient(t *testing.T) {
 	trace.Register("FooClient")
 	out := trace.ToPlantUML()
 	expected := `@startuml trace
-"FooClient" #82b366
+entity "FooClient" #82b366
 @enduml`
 	assert.That("UML should be correct", t, out, expected)
 }
@@ -88,7 +88,7 @@ func TestRegisterShouldCreateOneManager(t *testing.T) {
 	trace.Register("FooManager")
 	out := trace.ToPlantUML()
 	expected := `@startuml trace
-"FooManager" #d6b656
+entity "FooManager" #d6b656
 @enduml`
 	assert.That("UML should be correct", t, out, expected)
 }
@@ -98,7 +98,7 @@ func TestRegisterShouldCreateOneEngine(t *testing.T) {
 	trace.Register("FooEngine")
 	out := trace.ToPlantUML()
 	expected := `@startuml trace
-"FooEngine" #d79b00
+entity "FooEngine" #d79b00
 @enduml`
 	assert.That("UML should be correct", t, out, expected)
 }
@@ -108,7 +108,7 @@ func TestRegisterShouldCreateOneResourceAccess(t *testing.T) {
 	trace.Register("FooResourceAccess")
 	out := trace.ToPlantUML()
 	expected := `@startuml trace
-"FooResourceAccess" #6c8ebf
+entity "FooResourceAccess" #6c8ebf
 @enduml`
 	assert.That("UML should be correct", t, out, expected)
 }
@@ -118,7 +118,7 @@ func TestRegisterShouldCreateOneUnknownActor(t *testing.T) {
 	trace.Register("FooUnknown")
 	out := trace.ToPlantUML()
 	expected := `@startuml trace
-"FooUnknown" #999999
+entity "FooUnknown" #999999
 @enduml`
 	assert.That("UML should be correct", t, out, expected)
 }
