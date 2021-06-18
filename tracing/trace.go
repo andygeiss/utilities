@@ -58,7 +58,7 @@ func (a *Trace) ToContext(parent context.Context) context.Context {
 func (a *Trace) ToPlantUML() string {
 	out := "@startuml " + a.Title + "\n"
 	for _, actor := range a.actors {
-		out += fmt.Sprintf(`"%s" %s
+		out += fmt.Sprintf(`entity "%s" %s
 `, actor, getActorColor(actor))
 	}
 	for _, span := range a.spans {
