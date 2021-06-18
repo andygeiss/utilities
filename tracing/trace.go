@@ -70,13 +70,13 @@ func (a *Trace) ToPlantUML() string {
 }
 
 func getActorColor(actor string) string {
-	if strings.Index(actor, "Client") >= 0 {
+	if strings.Contains(actor, "Client") {
 		return "#82b366"
-	} else if strings.Index(actor, "Manager") >= 0 {
+	} else if strings.Contains(actor, "Manager") {
 		return "#d6b656"
-	} else if strings.Index(actor, "Engine") >= 0 {
+	} else if strings.Contains(actor, "Engine") {
 		return "#d79b00"
-	} else if strings.Index(actor, "ResourceAccess") >= 0 {
+	} else if strings.Contains(actor, "ResourceAccess") {
 		return "#6c8ebf"
 	}
 	return "#999999"
