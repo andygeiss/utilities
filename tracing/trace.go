@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -18,14 +19,29 @@ const (
 
 // Trace ...
 type Trace struct {
-	spans []*Span
-	Title string
+	actors []string
+	spans  []*Span
+	Title  string
 }
 
 // Add ...
 func (a *Trace) Add(span *Span) *Trace {
 	a.spans = append(a.spans, span)
 	return a
+}
+
+// Register ...
+func (a *Trace) Register(actor string) {
+	exists := false
+	for _, current := range a.actors {
+		if current == actor {
+			exists = true
+			break
+		}
+	}
+	if !exists {
+		a.actors = append(a.actors, actor)
+	}
 }
 
 // Spans ...
@@ -41,12 +57,29 @@ func (a *Trace) ToContext(parent context.Context) context.Context {
 // ToPlantUML ...
 func (a *Trace) ToPlantUML() string {
 	out := "@startuml " + a.Title + "\n"
+	for _, actor := range a.actors {
+		out += fmt.Sprintf(`actor "%s" %s
+`, actor, getActorColor(actor))
+	}
 	for _, span := range a.spans {
 		out += fmt.Sprintf(`"%s" -> "%s": %s (%v)
 `, span.Source, span.Target, span.Label, span.Duration)
 	}
 	out += "@enduml"
 	return out
+}
+
+func getActorColor(actor string) string {
+	if strings.Index(actor, "Client") >= 0 {
+		return "#82b366"
+	} else if strings.Index(actor, "Manager") >= 0 {
+		return "#d6b656"
+	} else if strings.Index(actor, "Engine") >= 0 {
+		return "#d79b00"
+	} else if strings.Index(actor, "ResourceAccess") >= 0 {
+		return "#6c8ebf"
+	}
+	return "#999999"
 }
 
 // ToFile ...

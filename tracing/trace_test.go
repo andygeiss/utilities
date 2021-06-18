@@ -72,3 +72,53 @@ func TestToFileShouldCreateFileStructure(t *testing.T) {
 	assert.That("testdata/YEAR/MONTH/DAY/TITLE.plantuml should be created", t, stat.IsDir(), true)
 	os.RemoveAll("testdata")
 }
+
+func TestRegisterShouldCreateOneClient(t *testing.T) {
+	trace := tracing.FromContext(context.Background())
+	trace.Register("FooClient")
+	out := trace.ToPlantUML()
+	expected := `@startuml trace
+actor "FooClient" #82b366
+@enduml`
+	assert.That("UML should be correct", t, out, expected)
+}
+
+func TestRegisterShouldCreateOneManager(t *testing.T) {
+	trace := tracing.FromContext(context.Background())
+	trace.Register("FooManager")
+	out := trace.ToPlantUML()
+	expected := `@startuml trace
+actor "FooManager" #d6b656
+@enduml`
+	assert.That("UML should be correct", t, out, expected)
+}
+
+func TestRegisterShouldCreateOneEngine(t *testing.T) {
+	trace := tracing.FromContext(context.Background())
+	trace.Register("FooEngine")
+	out := trace.ToPlantUML()
+	expected := `@startuml trace
+actor "FooEngine" #d79b00
+@enduml`
+	assert.That("UML should be correct", t, out, expected)
+}
+
+func TestRegisterShouldCreateOneResourceAccess(t *testing.T) {
+	trace := tracing.FromContext(context.Background())
+	trace.Register("FooResourceAccess")
+	out := trace.ToPlantUML()
+	expected := `@startuml trace
+actor "FooResourceAccess" #6c8ebf
+@enduml`
+	assert.That("UML should be correct", t, out, expected)
+}
+
+func TestRegisterShouldCreateOneUnknownActor(t *testing.T) {
+	trace := tracing.FromContext(context.Background())
+	trace.Register("FooUnknown")
+	out := trace.ToPlantUML()
+	expected := `@startuml trace
+actor "FooUnknown" #999999
+@enduml`
+	assert.That("UML should be correct", t, out, expected)
+}
